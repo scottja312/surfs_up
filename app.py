@@ -25,9 +25,6 @@ Base = automap_base()
 #reflect the tables
 Base.prepare(engine, reflect=True)
 
-# keys
-Base.classes.keys()
-
 # Save references to each table
 Measurement = Base.classes.measurement
 Station = Base.classes.station
@@ -63,12 +60,13 @@ def welcome():
     ''')
 
 # 2. Define precipitation route.
-@app.route("/api/v1.0/precipitation")
-def precipitation():
-    prev_year = dt.date(2017, 8, 23) - dt.timedelta(days=365)
-    
-    precipitation = session.query(Measurement.date, Measurement.prcp).\
-        filter(Measurement.date >= prev_year).all()
-    
-    precip = {date: prcp for date, prcp in precipitation}
-    return jsonify(precip)
+#@app.route("/api/v1.0/precipitation")
+#def precipitation():
+    #prev_year = dt.date(2017, 8, 23) - dt.timedelta(days=365)
+    #precipitation = session.query(Measurement.date, Measurement.prcp).\
+        #filter(Measurement.date >= prev_year).all()
+    #precip = {date: prcp for date, prcp in precipitation}
+    #return jsonify(precip)
+
+if __name__ == '__main__':
+    app.run()
