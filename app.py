@@ -48,7 +48,7 @@ app = Flask(__name__)
 # "magic methods" in Python.
 
 # Create Flask Routes.
-# 1. Define the starting point, known as the "root".
+# 1. Define the welcome route.
 @app.route('/')
 def welcome():
     return(
@@ -70,6 +70,51 @@ def precipitation():
         filter(Measurement.date >= prev_year).all()
     precip = {date: prcp for date, prcp in precipitation}
     return jsonify(precip)
+
+# 3. Define stations route.
+# Note: return the stations information that are collecting
+# data.
+@app.route("/api/v1.0/stations")
+def stations():
+    results = session.query(Station.station).all()
+    stations = list(np.ravel(results))
+    return jsonify(stations=stations)
+
+# 3. Define monthly temperature route.
+# Note: return the stations information that are collecting
+# data.
+@app.route("/api/v1.0/tobs")
+def temp_monthly():
+    prev_year = dt.date(2017, 8, 23) - dt.timedelta(days=365)
+    
+    results = session.query(Measurement.tobs).\
+        filter(Measurement.station == 'USC00519281').\
+        filter(Measurement.date >= prev_year).all()
+    
+    temps = list(np.ravel(results))
+    return jsonify(temps=temps)
+
+# 4. Define a route for minimum, maximum and avg temps (stats route).
+@app.route("/api/v1.0/temp/<start>")
+@app.route("/api/v1.0/temp/<start>/<end>")
+def stats(start=None, end=None):
+    
+    sel = [func.min(Measurement.tobs), func.avg(Measurement.tobs), func.max(Measurement.tobs)]
+    
+    if not end:
+	  results = session.query(*sel).\
+	      filter(Measurement.date <= start).all()
+       temps = list(np.ravel(results))
+       return jsonify(temps)
+
+    results = session.query(*sel).\
+        filter(Measurement.date >= start).\
+	    filter(Measurement.date <= end).all()
+     
+    temps = list(np.ravel(results))
+    return jsonify(temps=temps)
+    
+
 
 if __name__ == '__main__':
     app.run()
