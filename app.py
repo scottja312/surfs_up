@@ -19,16 +19,18 @@ from flask import Flask, jsonify
 ######################
 engine = create_engine("sqlite:///hawaii.sqlite")
 
-# reflect exisiting database into a new model
+# Reflect exisiting database into a new model
 Base = automap_base()
 
-#reflect the tables
+# Reflect the tables
 Base.prepare(engine, reflect=True)
+
+# Setup the classes of keys (measurement, station)
+Base.classes.keys()
 
 # Save references to each table
 Measurement = Base.classes.measurement
 Station = Base.classes.station
-
 
 # Create session from python to the DB
 session = Session(engine)
@@ -60,13 +62,14 @@ def welcome():
     ''')
 
 # 2. Define precipitation route.
-#@app.route("/api/v1.0/precipitation")
-#def precipitation():
-    #prev_year = dt.date(2017, 8, 23) - dt.timedelta(days=365)
-    #precipitation = session.query(Measurement.date, Measurement.prcp).\
-        #filter(Measurement.date >= prev_year).all()
-    #precip = {date: prcp for date, prcp in precipitation}
-    #return jsonify(precip)
+# Note: return the precipitation data for the last year.
+@app.route("/api/v1.0/precipitation")
+def precipitation():
+    prev_year = dt.date(2017, 8, 23) - dt.timedelta(days=365)
+    precipitation = session.query(Measurement.date, Measurement.prcp).\
+        filter(Measurement.date >= prev_year).all()
+    precip = {date: prcp for date, prcp in precipitation}
+    return jsonify(precip)
 
 if __name__ == '__main__':
     app.run()
